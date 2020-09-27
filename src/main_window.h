@@ -9,7 +9,7 @@
 
 #define GRID_WIDTH 26
 #define GRID_HEIGHT 14
-#define TEXT_SIZE 12
+#define TEXT_SIZE 11
 
 typedef struct strings {
     char ** strings_to_free;

@@ -11,6 +11,7 @@
         * Could also be changed in the future or removed at all.
         * No duplicate words are allowed(error message dialog will popup in such a case).
 * GUI is implemented with GTK3.
+* Was written on Manjaro Linux.
 
 
 # Layout:
