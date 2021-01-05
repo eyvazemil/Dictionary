@@ -18,13 +18,21 @@ int main(int argc, char ** argv) {
     finish();
     */
     initialize();
-    open_file("Spanish");
-    //if(change_word(NULL, "V", "book", "C", "A"))
-    //    puts("Already exists");
-    if(add_title(NULL, 0))
-        puts("Can't add title");
-    if(delete_title("book"))
-        puts("Can't delete title");
+    change_language("French");
+    add_word("GTX", "RTX", 0);
+    traverse();
+    add_language("Spanish");
+    add_word("A", "B", 0);
+    add_title("new", 0);
+    add_word("B", "C", 0);
+    change_word("B", NULL, "V", "C");
+    add_word("G", "T", 0);
+    traverse();
+    delete_title("new");
+    traverse();
+    delete_language("Spanish");
+    traverse();
+    change_language("French");
     traverse();
     finish();
 

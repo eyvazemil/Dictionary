@@ -17,7 +17,7 @@
 #define WORD_EXISTS_ERROR 253
 #define FILE_OPEN_ERROR 252
 #define LANGUAGE_NOT_CHOSEN 251
-#define NULL_TITLE_DELETE_ATTEMPT 250
+#define NULL_TITLE_CHANGE_ATTEMPT 250
 #define LANGUAGES_DIR_NAME "./Languages/"
 
 
@@ -58,13 +58,14 @@ Title * create_title(char *);
 int add_title(char * title, int flag_open);
 int delete_title(char * title);
 Title * find_title(char * title);
+void choose_title(char * title);
 int change_title_name(char * title, char * new_title);
 void * write_title(void *, void *);
 Word * create_word(char *, char *);
-int add_word(char * title, char * word, char * def, int flag_open);
-void delete_word(char * title, char * word);
-Word * find_word(char * title, char * word);
-int change_word(char * title, char * word, char * new_title, char * new_word, char * new_def);
+int add_word(char * word, char * def, int flag_open);
+void delete_word(char * word);
+Word * find_word(char * word);
+int change_word(char * word, char * new_title, char * new_word, char * new_def);
 void * write_word(void *, void *);
 // AVL tree functions
 int avl_compare_language(const void *, const void *);
