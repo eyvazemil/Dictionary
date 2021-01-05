@@ -81,6 +81,7 @@ void * avl_print_word(void *, void *);
 // wrapper stuff
 Dictionary * get_m_dictionary(void);
 Language * get_m_active_language(void);
+Title * get_m_active_title(void);
 // debugging
 void traverse(void);
 

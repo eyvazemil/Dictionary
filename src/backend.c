@@ -539,6 +539,10 @@ Language * get_m_active_language(void) {
     return m_active_language;
 }
 
+Title * get_m_active_title(void) {
+    return m_active_title;
+}
+
 // debugging
 void traverse(void) {
     puts("__traverse:__");
