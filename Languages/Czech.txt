@@ -1,2 +1,83 @@
-Ahoj - Hello
-a - a
+:
+Plivnout - плюнуть
+Vlk - волк
+Skrz - сквозь
+Strč - сунь
+Storno - аннулирование, отмена
+Stranou - вне, за пределами, в стороне
+Stačit - быть достаточным, хватать
+Strčit - толкнуть, сунуть
+Hlad - голод
+Hodit - бросить
+Hledět - глядеть
+Kde - где
+Kdy - когда
+Umět - уметь
+Chut' - аппетит, желание
+Cesta - дорога, путь, путешествие, поздка
+Zpívat - петь, напевать
+Zase - опять
+Zeptat se - спрашивать
+Špatně - плохо
+Chtít - хотеть
+Smět - сметь
+Moci - мочь
+Muset - быть должным
+Jít - идти
+Když - когда, пока, в то время как
+Velmi - очень
+Ani - ни, даже
+Vědět - знать
+Jíst - есть
+Odpověd - ответ
+Že - что
+Během - в течении, во время, в продолжение
+Kluk - пацан, парень, мальчик
+Holka - девушка
+Snad - возможно, якобы
+Snadný - простой, нетрудный
+Dřív - раньше, преждевременно
+Po - после, по
+Příklad - пример
+Posadte se - сесть
+Podívat se - посмотреть
+Číst - делать
+Ŕíct - сказать
+Odejít - отойти
+Vzít - взять
+Ať, nechť - пусть, да, пускай
+Zájemce - желающий, заинтересованный
+Krk - шея
+Jen - только, лишь, всего
+Vzor - type, pattern
+Přiliš - too, excessively
+Tak - so
+Docela - quite
+Asi - probably
+Možna - maybe
+Jistě - certainly
+Jen, jenom - only
+Taky - also
+Právě - just, only
+Tedy, teda - in that case, then
+Přece - after all
+Vždyt' - besides
+Počasí - weather
+Horko - hot
+Pěkne - nice
+Hezky - lovely
+Ošklivo - гадко, безобразно, уродливо
+Venku - на улице, во дворе, вне, снаружи
+Bouřka - буря, гроза
+Članek - article
+Fouká vítr - дует ветер
+Pršet - дождит, моросит
+Vypadat - выглядеть, казаться
+Kam - куда
+Sem - сюда
+Tadyhle - здесь, тут, вот
+Tam - там, туда
+Kamsi - куда то
+Odkudsi - откуда то
+Nikdy - never
+Spolu - together

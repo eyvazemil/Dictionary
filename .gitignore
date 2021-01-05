@@ -1,4 +1,4 @@
 *.o
-/Languages/Azerbaijani.txt
-/Languages/English.txt
-/Languages/Russian.txt
+/Languages/*
+!/Languages/French.txt
+/Tmp/*
