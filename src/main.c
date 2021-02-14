@@ -19,20 +19,23 @@ int main(int argc, char ** argv) {
     */
     initialize();
     change_language("French");
+    traverse();
+    change_language("Spanish");
+    /*change_language("French");
     add_word("GTX", "RTX", 0);
     traverse();
     add_language("Spanish");
     add_word("A", "B", 0);
-    add_title("new", 0);
-    add_word("B", "C", 0);
-    change_word("B", NULL, "V", "C");
+    add_title("new:", 0);
+    add_word("B-B:-", "-:C-V", 0);
+    //change_word("B", NULL, "V", "C");
     add_word("G", "T", 0);
     traverse();
-    delete_title("new");
+    //delete_title("new");
     traverse();
-    delete_language("Spanish");
+    //delete_language("Spanish");
     traverse();
-    change_language("French");
+    //change_language("French");*/
     traverse();
     finish();
 

@@ -278,6 +278,8 @@ int change_title_name(char * title, char * new_title) {
         str_free(&(found_title->title_name));
         str_append(&(found_title->title_name), new_title, -1, 0);
         insert(&(m_active_language->title_tree), (void *) found_title);
+        // set modified flag to 1
+        m_active_language->flag_modified = 1;
     }
     // free resources
     avl_free_title((void *) title1);
@@ -381,13 +383,12 @@ int change_word(char * word, char * new_title, char * new_word, char * new_def) 
         m_active_title = current_title;
         delete_word(word); // delete from the AVL tree
         m_active_title = new_title_ptr;
-        add_word(new_word, new_def, 0); // insert new word into AVL tree
     } else { // the same title
         found_word = find_word(new_word);
         if(found_word) return WORD_EXISTS_ERROR;
         delete_word(word); // delete from the AVL tree
-        add_word(new_word, new_def, 0); // insert new word into AVL tree
     }
+    add_word(new_word, new_def, 0); // insert new word into AVL tree
     found_language->flag_modified = 1; // set modified flag to 1
     // free resources
     avl_free_title((void *) title1);
