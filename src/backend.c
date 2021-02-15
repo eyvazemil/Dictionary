@@ -45,7 +45,8 @@ void initialize(char * base_dir) {
 }
 
 void finish(void) {
-    close_file();
+    Language * tmp_active_language = m_active_language;
+    close_file(tmp_active_language);
     avl_free_dictionary();
     // free language strings
     in_order_get(&(m_dictionary->language_tree), NULL, &free_language_strings);
@@ -60,15 +61,26 @@ void finish(void) {
 }
 
 void change_language(char * lang) {
-    close_file();
-    open_file(lang);
+    // do not open the language, if it is already opened
+    Language * found_language = find_language(lang);
+    if(!found_language || found_language == m_active_language) return;
+    // change language
+    Language * tmp_active_language = m_active_language;
+    void * status;
+    pthread_t * threads[2];
+    threads[0] = create_thread(&thread_close, (void *) tmp_active_language);
+    threads[1] = create_thread(&thread_open, (void *) lang);
+    for(int i = 0; i < 2; i++) {
+        pthread_join(*(threads[i]), &status);
+        free(threads[i]);
+    }
 }
 
 void open_file(char * lang) {
     // find this language
     Language * found_language = find_language(lang);
     Title * found_title;
-    if(!found_language) return;
+    if(!found_language || found_language == m_active_language) return;
     m_active_language = found_language; // set active language
     // open a file
     FILE * fp;
@@ -142,27 +154,26 @@ void open_file(char * lang) {
     fclose(fp);
 }
 
-void close_file(void) {
-    if(!m_active_language) return;
+void close_file(Language * tmp_active_language) {
+    if(!tmp_active_language) return;
     // write titles and words into the file
-    if(m_active_language->flag_modified) { // write to the file only if the language was modified
+    if(tmp_active_language->flag_modified) { // write to the file only if the language was modified
         // open a file
         FILE * fp;
         String openfile;
         _str_init_(&openfile);
         str_append(&openfile, LANGUAGES_DIR->str, -1, 0);
-        str_append(&openfile, (m_active_language->language_name).str, -1, 0);
+        str_append(&openfile, (tmp_active_language->language_name).str, -1, 0);
         str_append(&openfile, ".txt", -1, 0);
         fp = fopen(openfile.str, "w");
         str_free(&openfile);
-        in_order_get(&(m_active_language->title_tree), (void *) fp, &write_title);
+        in_order_get(&(tmp_active_language->title_tree), (void *) fp, &write_title);
         fclose(fp);
     }
-    m_active_language->flag_modified = 0; // reset modified bit
-    m_active_language->word_count = 0; // reset word count
-    avl_free_language((void *) m_active_language); // free resources
-    m_active_language = NULL; // reset active language
-    m_active_title = NULL; // reset active title
+    tmp_active_language->flag_modified = 0; // reset modified bit
+    tmp_active_language->word_count = 0; // reset word count
+    avl_free_language((void *) tmp_active_language); // free resources
+    tmp_active_language = NULL; // reset active language
 }
 
 Language * create_language(char * lang_name, int len) {
@@ -192,12 +203,17 @@ int add_language(char * lang) {
     fclose(fp);
     str_free(&openfile);
     // close currently active language
-    close_file();
+    Language * tmp_active_language = m_active_language;
+    void * status;
+    pthread_t * thread = create_thread(&thread_close, (void *) tmp_active_language);
     // insert new language
     insert(&(m_dictionary->language_tree), (void *) create_language(lang, strlen(lang)));
     m_active_language = find_language(lang);
     add_title(NULL, 0); // add NONE title
     m_active_title = find_title(NULL); // set active title to NULL
+    // join thread
+    pthread_join(*thread, &status);
+    free(thread);
     return 0;
 }
 
@@ -463,6 +479,27 @@ void * write_word(void * my_para, void * avl_key) {
     fwrite(line.str, strlen(line.str), 1, fp);
     str_free(&line);
     return NULL;
+}
+
+// thread functions
+pthread_t * create_thread(void * (*func)(void *), void * para) {
+    pthread_t * thread = (pthread_t *) malloc(sizeof(pthread_t));
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+    pthread_create(thread, &attr, *func, (void *) para);
+    pthread_attr_destroy(&attr);
+    return thread;
+}
+
+void * thread_close(void * para) {
+    close_file((Language *) para);
+    pthread_exit(NULL);
+}
+
+void * thread_open(void * para) {
+    open_file((char *) para);
+    pthread_exit(NULL);
 }
 
 // AVL tree functions

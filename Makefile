@@ -14,7 +14,7 @@ main_window.o: ./src/main_window.h ./src/main_window.c ./backend.o
 	$(CXX) -c ./src/main_window.c $(OPT)
 
 backend.o: ./src/backend.h ./src/backend.c ./string.o ./avl_tree.o
-	$(CXX) -c ./src/backend.c $(OPT)
+	$(CXX) -c -lpthread ./src/backend.c $(OPT)
 
 string.o: ./src/string.h ./src/string.c
 	$(CXX) -c ./src/string.c $(OPT)

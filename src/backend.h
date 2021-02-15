@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <time.h>
+#include <pthread.h>
 #include "avl_tree.h"
 #include "string.h"
 
@@ -53,7 +54,7 @@ void initialize(char * base_dir);
 void finish(void);
 void change_language(char * lang);
 void open_file(char * lang);
-void close_file(void);
+void close_file(Language * tmp_active_language);
 Language * create_language(char *, int);
 int add_language(char * lang);
 void delete_language(char * lang);
@@ -71,6 +72,10 @@ void delete_word(char * word);
 Word * find_word(char * word);
 int change_word(char * word, char * new_title, char * new_word, char * new_def);
 void * write_word(void *, void *);
+// thread functions
+pthread_t * create_thread(void * (*func)(void *), void *);
+void * thread_close(void *);
+void * thread_open(void *);
 // AVL tree functions
 int avl_compare_language(const void *, const void *);
 int avl_compare_title(const void *, const void *);

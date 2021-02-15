@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
     initialize(argv[1]);
     change_language("French");
     traverse();
-    delete_language("Spanish");
+    //delete_language("Spanish");
     add_language("Spanish");
     change_language("Spanish");
     add_word("GTX", "RTX", 0);
