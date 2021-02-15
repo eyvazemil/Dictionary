@@ -1,12 +1,31 @@
 #include "backend.h"
 
+static String * BASE_DIR;
+static String * LANGUAGES_DIR;
+
 Dictionary * m_dictionary = NULL; // actual dictionary object
 Language * m_active_language = NULL; // currently active language
 Title * m_active_title = NULL;
 
-void initialize(void) {
+void initialize(char * base_dir) {
     struct dirent * pdir;
-    DIR * _directory = opendir(LANGUAGES_DIR_NAME);
+    DIR * _directory;
+    // set base directory and languages directory
+    BASE_DIR = (String *) malloc(sizeof(String));
+    LANGUAGES_DIR = (String *) malloc(sizeof(String));
+    _str_init_(BASE_DIR);
+    str_append(BASE_DIR, base_dir, -1, 0);
+    _str_init_(LANGUAGES_DIR);
+    str_append(LANGUAGES_DIR, base_dir, -1, 0);
+    str_append(LANGUAGES_DIR, "/Languages/", -1, 0);
+    // synch with github
+    String program_name;
+    _str_init_(&program_name);
+    str_append(&program_name, BASE_DIR->str, -1, 0);
+    str_append(&program_name, "/src/_git_clone_.sh", -1, 0);
+    run_exec(&program_name);
+    // open directory
+    _directory = opendir(LANGUAGES_DIR->str);
     // initialize Directory structure
     m_dictionary = (Dictionary *) malloc(sizeof(Dictionary));
     _avl_init_(&(m_dictionary->language_tree));
@@ -29,6 +48,12 @@ void finish(void) {
     close_file();
     avl_free_dictionary();
     m_dictionary = NULL;
+    // synch with github
+    String program_name;
+    _str_init_(&program_name);
+    str_append(&program_name, BASE_DIR->str, -1, 0);
+    str_append(&program_name, "/src/_git_push_.sh", -1, 0);
+    run_exec(&program_name);
 }
 
 void change_language(char * lang) {
@@ -46,7 +71,7 @@ void open_file(char * lang) {
     FILE * fp;
     String openfile;
     _str_init_(&openfile);
-    str_append(&openfile, LANGUAGES_DIR_NAME, -1, 0);
+    str_append(&openfile, LANGUAGES_DIR->str, -1, 0);
     str_append(&openfile, lang, -1, 0);
     str_append(&openfile, ".txt", -1, 0);
     fp = fopen(openfile.str, "r");
@@ -122,7 +147,7 @@ void close_file(void) {
         FILE * fp;
         String openfile;
         _str_init_(&openfile);
-        str_append(&openfile, LANGUAGES_DIR_NAME, -1, 0);
+        str_append(&openfile, LANGUAGES_DIR->str, -1, 0);
         str_append(&openfile, (m_active_language->language_name).str, -1, 0);
         str_append(&openfile, ".txt", -1, 0);
         fp = fopen(openfile.str, "w");
@@ -157,7 +182,7 @@ int add_language(char * lang) {
     FILE * fp;
     String openfile;
     _str_init_(&openfile);
-    str_append(&openfile, LANGUAGES_DIR_NAME, -1, 0);
+    str_append(&openfile, LANGUAGES_DIR->str, -1, 0);
     str_append(&openfile, lang, -1, 0);
     str_append(&openfile, ".txt", -1, 0);
     fp = fopen(openfile.str, "w");
@@ -179,7 +204,7 @@ void delete_language(char * lang) {
     // delete a file
     String openfile;
     _str_init_(&openfile);
-    str_append(&openfile, LANGUAGES_DIR_NAME, -1, 0);
+    str_append(&openfile, LANGUAGES_DIR->str, -1, 0);
     str_append(&openfile, lang, -1, 0);
     str_append(&openfile, ".txt", -1, 0);
     remove(openfile.str);
@@ -544,9 +569,53 @@ Title * get_m_active_title(void) {
     return m_active_title;
 }
 
+// github synchronization
+void run_exec(String * program_name) {
+    int pid, signal_received;
+    char * ppid = int_to_str(getpid());
+    sigset_t signals_set;
+    sigemptyset(&signals_set); // reset the signals set
+    sigaddset(&signals_set, SIGUSR1);
+    sigprocmask(SIG_BLOCK, &signals_set, NULL);
+    if(!(pid = fork())) {
+        /* child */
+        execl(program_name->str, program_name->str, BASE_DIR->str, ppid, (char *) NULL);
+        exit(1);
+    }
+    // wait for a signal from child process
+    sigwait(&signals_set, &signal_received);
+    free(ppid);
+}
+
 // debugging
 void traverse(void) {
     puts("__traverse:__");
     if(m_dictionary)
         in_order_get(&(m_dictionary->language_tree), NULL, &avl_print_language);
+}
+
+// misc
+char * int_to_str(int num) {
+    char * str = NULL;
+	int para_num = num, count = 0, len = 1;
+	char tmp;
+	while(para_num) {
+        if(count == len - 1)
+            str = (char *) realloc(str, (len *= 2) * sizeof(char));
+		str[count] = (char) (para_num % 10 + 48);
+		para_num /= 10;
+		count++;
+	}
+    str[count] = '\0';
+	str_reverse(str, count);
+    return str;
+}
+
+void str_reverse(char * str, int count) {
+	char tmp;
+	for(int i = count - 1, j = 0; i > j; i--, j++) {
+		tmp = str[i];
+		str[i] = str[j];
+		str[j] = tmp;
+	}
 }

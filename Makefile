@@ -3,6 +3,7 @@ OPT = `pkg-config --libs --cflags gtk+-3.0`
 OBJECTS = main.o backend.o string.o avl_tree.o #main_window.o
 RM = rm -f
 OUT = dictionary
+BASE_DIR = "/home/user/Documents/Programming/GTK_Files/Dictionary"
 
 all: compile
 
@@ -25,7 +26,7 @@ compile: $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $(OUT) $(OPT)
 
 run:
-	./$(OUT)
+	./$(OUT) $(BASE_DIR)
 
 clean: $(OUT)
 	$(RM) *.o

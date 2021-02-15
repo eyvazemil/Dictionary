@@ -7,7 +7,7 @@ int main(int argc, char ** argv) {
     // initialize gtk
     gtk_init(&argc, &argv);
     // initialize backend
-    initialize();
+    initialize(argv[1]);
     // create a main window and all the objects in it
     main_window();
     // main event loop
@@ -17,26 +17,20 @@ int main(int argc, char ** argv) {
     // finalize the backend
     finish();
     */
-    initialize();
+    initialize(argv[1]);
     change_language("French");
     traverse();
-    change_language("Spanish");
-    /*change_language("French");
-    add_word("GTX", "RTX", 0);
-    traverse();
+    delete_language("Spanish");
     add_language("Spanish");
+    change_language("Spanish");
+    add_word("GTX", "RTX", 0);
     add_word("A", "B", 0);
+    change_word("A", NULL, "V", "C");
     add_title("new:", 0);
     add_word("B-B:-", "-:C-V", 0);
-    //change_word("B", NULL, "V", "C");
     add_word("G", "T", 0);
     traverse();
-    //delete_title("new");
-    traverse();
-    //delete_language("Spanish");
-    traverse();
     //change_language("French");*/
-    traverse();
     finish();
 
     return 0;

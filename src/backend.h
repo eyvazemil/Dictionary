@@ -8,7 +8,12 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <wait.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <signal.h>
+#include <time.h>
 #include "avl_tree.h"
 #include "string.h"
 
@@ -18,7 +23,6 @@
 #define FILE_OPEN_ERROR 252
 #define LANGUAGE_NOT_CHOSEN 251
 #define NULL_TITLE_CHANGE_ATTEMPT 250
-#define LANGUAGES_DIR_NAME "./Languages/"
 
 
 typedef struct word {
@@ -45,7 +49,7 @@ typedef struct dictionary {
 
 
 // main functions
-void initialize(void);
+void initialize(char * base_dir);
 void finish(void);
 void change_language(char * lang);
 void open_file(char * lang);
@@ -82,8 +86,13 @@ void * avl_print_word(void *, void *);
 Dictionary * get_m_dictionary(void);
 Language * get_m_active_language(void);
 Title * get_m_active_title(void);
+// github synchronization
+void run_exec(String * program_name);
 // debugging
 void traverse(void);
+// misc
+char * int_to_str(int num);
+void str_reverse(char * str, int count);
 
 
 #endif // BACKEND_H
