@@ -47,6 +47,9 @@ void initialize(char * base_dir) {
 void finish(void) {
     close_file();
     avl_free_dictionary();
+    // free language strings
+    in_order_get(&(m_dictionary->language_tree), NULL, &free_language_strings);
+    // set dictionary pointer to NULL
     m_dictionary = NULL;
     // synch with github
     String program_name;
@@ -553,6 +556,13 @@ void * avl_print_title(void * my_para, void * avl_key) {
 void * avl_print_word(void * my_para, void * avl_key) {
     Word * tmp = (Word *) avl_key;
     printf("....%s - %s\n", (tmp->m_word).str, (tmp->m_definition).str);
+    return NULL;
+}
+
+void * free_language_strings(void * my_para, void * avl_key) {
+    Language * tmp = (Language *) avl_key;
+    str_free(&(tmp->language_name));
+    free(tmp);
     return NULL;
 }
 

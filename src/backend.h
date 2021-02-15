@@ -82,6 +82,7 @@ void avl_free_word(void *);
 void * avl_print_language(void *, void *);
 void * avl_print_title(void *, void *);
 void * avl_print_word(void *, void *);
+void * free_language_strings(void *, void *);
 // wrapper stuff
 Dictionary * get_m_dictionary(void);
 Language * get_m_active_language(void);
