@@ -24,6 +24,7 @@ void initialize(char * base_dir) {
     str_append(&program_name, BASE_DIR->str, -1, 0);
     str_append(&program_name, "/src/_git_clone_.sh", -1, 0);
     run_exec(&program_name);
+    str_free(&program_name);
     // open directory
     _directory = opendir(LANGUAGES_DIR->str);
     // initialize Directory structure
@@ -35,21 +36,24 @@ void initialize(char * base_dir) {
     while(pdir = readdir(_directory)) {
         // read file name
         size_t tmp_len = strlen(pdir->d_name);
-        if((pdir->d_name)[tmp_len - 1] == '.' ||
+        if((pdir->d_name)[tmp_len - 1] == '.' || (pdir->d_name)[0] == '.' ||
             ((pdir->d_name)[tmp_len - 1] == '.' && (pdir->d_name)[tmp_len - 2] == '.')) continue;
         // creating language in the dictionary
         Language * new_lang = create_language(pdir->d_name, strlen(pdir->d_name) - 4);
         insert(&(m_dictionary->language_tree), (void *) new_lang);
     }
     closedir(_directory);
+    m_active_language = NULL;
+    m_active_title = NULL;
 }
 
 void finish(void) {
     Language * tmp_active_language = m_active_language;
     close_file(tmp_active_language);
-    avl_free_dictionary();
     // free language strings
     in_order_get(&(m_dictionary->language_tree), NULL, &free_language_strings);
+    // free dictionary
+    avl_free_dictionary();
     // set dictionary pointer to NULL
     m_dictionary = NULL;
     // synch with github
@@ -58,6 +62,12 @@ void finish(void) {
     str_append(&program_name, BASE_DIR->str, -1, 0);
     str_append(&program_name, "/src/_git_push_.sh", -1, 0);
     run_exec(&program_name);
+    str_free(&program_name);
+    // free resources
+    str_free(BASE_DIR);
+    str_free(LANGUAGES_DIR);
+    free(BASE_DIR);
+    free(LANGUAGES_DIR);
 }
 
 void change_language(char * lang) {
@@ -82,6 +92,7 @@ void open_file(char * lang) {
     Title * found_title;
     if(!found_language || found_language == m_active_language) return;
     m_active_language = found_language; // set active language
+    m_active_language->word_count = 0;
     // open a file
     FILE * fp;
     String openfile;
@@ -101,7 +112,10 @@ void open_file(char * lang) {
         line_count--; // do not include the last newline
         // parse the line
         if(line[line_count - 1] == ':' && (line_count == 1 || (line_count > 1 && line[line_count - 2] != '\\'))) { // title
-            if(title) str_free(title);
+            if(title) {
+                str_free(title);
+                free(title);
+            }
             title = (String *) malloc(sizeof(String));
             _str_init_(title);
             //str_append(&title, line, 0, line_count - 1);
@@ -139,9 +153,6 @@ void open_file(char * lang) {
             // free word and definition resources
             str_free(&word);
             str_free(&definition);
-            // increase word count
-            (found_language->word_count)++;
-            (found_title->word_count)++;
         }
         // reset the line string
         free(line);
@@ -149,8 +160,10 @@ void open_file(char * lang) {
         line_len = 0;
     }
     m_active_title = find_title(NULL); // set active title to NULL
-    if(title)
+    if(title) {
         str_free(title);
+        free(title);
+    }
     fclose(fp);
 }
 
@@ -189,6 +202,8 @@ Language * create_language(char * lang_name, int len) {
 }
 
 int add_language(char * lang) {
+    // check if language name is empty
+    if(!lang || !strcmp(lang, "")) return LANGUAGE_INCORRECT_NAME;
     // check if such a language already exists
     Language * found_language = find_language(lang);
     if(found_language) return LANGUAGE_EXISTS_ERROR;
@@ -236,6 +251,7 @@ void delete_language(char * lang) {
     // find language
     Language * para_language = create_language(lang, strlen(lang)); // parameter for AVL tree
     delete(&(m_dictionary->language_tree), (void *) para_language);
+    free_language_strings(NULL, (void *) para_language);
     avl_free_language((void *) para_language);
 }
 
@@ -245,6 +261,7 @@ Language * find_language(char * lang) {
     if(avl_node)
         found_language = (Language *) (avl_node->key); // key in AVL tree
     else found_language = NULL;
+    free_language_strings(NULL, (void *) para_language);
     avl_free_language((void *) para_language);
     return found_language;
 }
@@ -258,11 +275,13 @@ Title * create_title(char * title) {
     assign_free_func(&(new_title->word_tree), &avl_free_word);
     new_title->first_word_ptr = NULL;
     new_title->last_word_ptr = NULL;
+    new_title->word_count = 0;
     return new_title;
 }
 
 int add_title(char * title, int flag_open) {
     Language * found_language = m_active_language;
+    if(!found_language) return LANGUAGE_IS_NOT_SET;
     Title * found_title = find_title(title);
     if(found_title) return TITLE_EXISTS_ERROR;
     // if this function is not called from open_file function, set modified flag to 1
@@ -276,16 +295,16 @@ int add_title(char * title, int flag_open) {
 }
 
 int delete_title(char * title) {
-    if(!title || !strcmp(title, "")) return NULL_TITLE_CHANGE_ATTEMPT;
     Language * found_language = m_active_language;
+    if(!found_language) return LANGUAGE_IS_NOT_SET;
+    if(!title || !strcmp(title, "")) return NULL_TITLE_CHANGE_ATTEMPT;
     Title * found_title = find_title(title);
     // change active title to NULL, if this one was freed
     if(m_active_title == found_title)
         m_active_title = find_title(NULL);
     // delete title
-    Title * para_title = create_title(title);
-    delete(&(found_language->title_tree), (void *) para_title);
-    avl_free_title((void *) para_title);
+    delete(&(found_language->title_tree), (void *) found_title);
+    avl_free_title((void *) found_title);
     // set modified flag to 1
     found_language->flag_modified = 1;
     return 0;
@@ -309,11 +328,10 @@ void choose_title(char * title) {
 }
 
 int change_title_name(char * title, char * new_title) {
+    if(!m_active_language) return LANGUAGE_IS_NOT_SET;
     if(!title || !strcmp(title, "")) return NULL_TITLE_CHANGE_ATTEMPT;
     Title * found_title, * found_new_title;
     Title * title1 = create_title(title), * title2 = create_title(new_title);
-    String str_new_title;
-    _str_init_(&str_new_title);
     if(avl_compare_title(title1, title2)) { // title name has changed
         found_new_title = find_title(new_title);
         if(found_new_title) return TITLE_EXISTS_ERROR;
@@ -350,6 +368,7 @@ void * write_title(void * my_para, void * avl_key) {
     str_append(&line, ":\n", -1, 0);
     fwrite(line.str, strlen(line.str), 1, fp);
     str_free(&line);
+    str_free(&correct_title);
     // write words into the file
     Word * tmp = title->last_word_ptr;
     while(tmp) {
@@ -374,8 +393,10 @@ Word * create_word(char * word, char * def) {
 int add_word(char * word, char * def, int flag_open) {
     Language * found_language = m_active_language;
     Title * found_title = m_active_title;
+    if(!found_language) return LANGUAGE_IS_NOT_SET;
     Word * found_word = find_word(word);
     if(found_word) return WORD_EXISTS_ERROR;
+    if(!word || !strcmp(word, "") || !def || !strcmp(def, "")) return WORD_INCORRECT_NAME;
     // create new word and connect pointers in the linked list
     Word * new_word = create_word(word, def);
     new_word->next_word = found_title->first_word_ptr;
@@ -403,16 +424,14 @@ void delete_word(char * word) {
         found_title->first_word_ptr = found_word->next_word;
     if(found_title->last_word_ptr == found_word)
         found_title->last_word_ptr = found_word->prev_word;
-    avl_free_word(found_word);
     // increase the counter of words
     (found_language->word_count)--;
     (found_title->word_count)--;
     // set modified flag to 1
     found_language->flag_modified = 1;
     // delete from AVL tree
-    Word * para_word = create_word(word, "");
-    delete(&(found_title->word_tree), (void *) para_word);
-    avl_free_word(para_word);
+    delete(&(found_title->word_tree), (void *) found_word);
+    avl_free_word(found_word);
 }
 
 int change_word(char * word, char * new_title, char * new_word, char * new_def) {
@@ -478,6 +497,8 @@ void * write_word(void * my_para, void * avl_key) {
     str_append_char(&line, '\n');
     fwrite(line.str, strlen(line.str), 1, fp);
     str_free(&line);
+    str_free(&correct_word);
+    str_free(&correct_definition);
     return NULL;
 }
 
@@ -544,6 +565,7 @@ int avl_compare_word(const void * para1, const void * para2) {
 
 void avl_free_dictionary(void) {
     free_tree(&(m_dictionary->language_tree));
+    free(m_dictionary);
 }
 
 void avl_free_language(void * para) {
@@ -646,6 +668,12 @@ char * int_to_str(int num) {
     char * str = NULL;
 	int para_num = num, count = 0, len = 1;
 	char tmp;
+    if(!num) {
+        str = (char *) malloc(2 * sizeof(char));
+        str[0] = '0';
+        str[1] = '\0';
+        return str;
+    }
 	while(para_num) {
         if(count == len - 1)
             str = (char *) realloc(str, (len *= 2) * sizeof(char));

@@ -10,5 +10,5 @@ typedef struct string {
 
 void _str_init_(String *);
 void str_free(String *);
-void str_append(String *, char *, int, int);
+void str_append(String *, const char *, int, int);
 void str_append_char(String *, char);

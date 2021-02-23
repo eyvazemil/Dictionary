@@ -53,4 +53,6 @@ void free_tree(AVL *);
 static void free_tree_helper(AVL *, Node *);
 // get keys of the tree in-order
 void in_order_get(AVL *, void *, void * (*my_get_callback)(void *, void *));
+void in_order_get_func_para(AVL * avl_tree, void * (*func_para)(void *), void * (*my_get_callback)(void * (*func)(void *), void *));
 static void in_order_get_helper(Node *, void *, void * (*my_get_callback)(void *, void *));
+static void in_order_get_func_para_helper(Node * node, void * (*func_para)(void *), void * (*my_get_callback)(void * (*func)(void *), void *));

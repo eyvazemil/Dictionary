@@ -191,6 +191,10 @@ void in_order_get(AVL * avl_tree, void * my_para, void * (*my_get_callback)(void
     in_order_get_helper(avl_tree->root, my_para, my_get_callback);
 }
 
+void in_order_get_func_para(AVL * avl_tree, void * (*func_para)(void *), void * (*my_get_callback)(void * (*func)(void *), void *)) {
+    in_order_get_func_para_helper(avl_tree->root, func_para, my_get_callback);
+}
+
 void in_order_get_helper(Node * node, void * my_para, void * (*my_get_callback)(void *, void *)) {
     if(!node) return;
     if(node->left)
@@ -198,4 +202,13 @@ void in_order_get_helper(Node * node, void * my_para, void * (*my_get_callback)(
     (*my_get_callback)(my_para, node->key);
     if(node->right)
         in_order_get_helper(node->right, my_para, my_get_callback);
+}
+
+void in_order_get_func_para_helper(Node * node, void * (*func_para)(void *), void * (*my_get_callback)(void * (*func)(void *), void *)) {
+    if(!node) return;
+    if(node->left)
+        in_order_get_func_para_helper(node->left, func_para, my_get_callback);
+    (*my_get_callback)(func_para, node->key);
+    if(node->right)
+        in_order_get_func_para_helper(node->right, func_para, my_get_callback);
 }

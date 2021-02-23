@@ -7,10 +7,11 @@ void _str_init_(String * str) {
 
 void str_free(String * str) {
     free(str->str);
+	str->str = NULL;
 	str->len = 0;
 }
 
-void str_append(String * str1, char * str2, int begin, int len) {
+void str_append(String * str1, const char * str2, int begin, int len) {
 	int mult = 1, flag = 0, new_size, str2_size;
 	if(!str2 || (begin != -1 && !len)) {
 		//printf("line: %s\n", str2);
