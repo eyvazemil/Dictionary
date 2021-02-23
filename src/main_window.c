@@ -435,7 +435,46 @@ void empty_words_list(void) {
 }
 
 void dialog_change_word_callback(UI_Change_Parameter * para) {
-    
+    GtkWidget * entry_word = (para->widgets_array)[0];
+    GtkWidget * entry_definition = (para->widgets_array)[1];
+    char * word = para->current_word;
+    int dialog_response = para->dialog_response;
+    char * active_title = get_active_title();
+    if(dialog_response) { // if "change" button was pressed
+        String str_entry_word, str_entry_definition;
+        const char * new_word = gtk_entry_get_text((GtkEntry *) entry_word);
+        const char * new_definition = gtk_entry_get_text((GtkEntry *) entry_definition);
+        _str_init_(&str_entry_word);
+        str_append(&str_entry_word, new_word, -1, 0);
+        _str_init_(&str_entry_definition);
+        str_append(&str_entry_definition, new_definition, -1, 0);
+        // check if entries are empty
+        if(!str_entry_word.str || !strcmp(str_entry_word.str, "") ||
+            !str_entry_definition.str || !strcmp(str_entry_definition.str, ""))
+        {
+            String text;
+            _str_init_(&text);
+            str_append(&text, "Word or definition entries can't be empty.", -1, 0);
+            message_simple(text.str);
+            str_free(&text);
+        } else { // change word
+            int res = change_word(word, active_title, str_entry_word.str, str_entry_definition.str);
+            if(!res) { // word was changed
+                update_titles_list();
+                update_words_list();
+            } else { // word exists
+                String text;
+                _str_init_(&text);
+                str_append(&text, "Word \"", -1, 0);
+                str_append(&text, str_entry_word.str, -1, 0);
+                str_append(&text, "\" already exists.", -1, 0);
+                message_simple(text.str);
+                str_free(&text);
+            }
+        }
+        str_free(&str_entry_word);
+        str_free(&str_entry_definition);
+    }
 }
 
 // search
@@ -596,7 +635,7 @@ void button_remove_title_callback(GtkWidget * button, void * para) {
 void button_change_title_callback(GtkWidget * button, void * para) {
     char * active_title = get_active_title();
     GtkWidget * label, * entry;
-    GtkWidget * ret_dialog, * dialog_content = set_grid_cells(7, 1);
+    GtkWidget * dialog_content = set_grid_cells(7, 1);
     // check if language is set
     if(!get_active_language()) {
         String text;
@@ -625,12 +664,12 @@ void button_change_title_callback(GtkWidget * button, void * para) {
     UI_Change_Parameter func_para;
     func_para.widgets_array = (GtkWidget **) malloc(sizeof(GtkWidget *));
     (func_para.widgets_array)[0] = entry;
+    func_para.current_word = NULL;
     func_para.array_size = 1;
     // create a dialog
     message_change(dialog_content, &func_para, &dialog_change_title_callback, "Change title");
     // free resources
     free(func_para.widgets_array);
-    free(para);
 }
 
 void button_title_callback(GtkWidget * button, void * para) {
@@ -701,7 +740,36 @@ void button_remove_word_callback(GtkWidget * button, void * para) {
 }
 
 void button_change_word_callback(GtkWidget * button, void * para) {
-    
+    char * word = (char *) para;
+    GtkWidget * label_word, * label_definition;
+    GtkWidget * entry_word, * entry_definition;
+    GtkWidget * dialog_content = set_grid_cells(10, 2);
+    // find definition of the word
+    Wrapper_Word word_with_definition;
+    word_with_definition.word = word;
+    wrapper_find_word(&word_with_definition); // definition will be set in this function
+    // set dialog content
+    label_word = gtk_label_new("Word:");
+    gtk_grid_attach((GtkGrid *) dialog_content, label_word, 0, 0, 3, 1);
+    entry_word = gtk_entry_new();
+    gtk_entry_set_text((GtkEntry *) entry_word, word_with_definition.word);
+    gtk_grid_attach((GtkGrid *) dialog_content, entry_word, 3, 0, 6, 1);
+    label_definition = gtk_label_new("Definition:");
+    gtk_grid_attach((GtkGrid *) dialog_content, label_definition, 0, 1, 3, 1);
+    entry_definition = gtk_entry_new();
+    gtk_entry_set_text((GtkEntry *) entry_definition, word_with_definition.definition);
+    gtk_grid_attach((GtkGrid *) dialog_content, entry_definition, 3, 1, 6, 1);
+    // create parameter for a change title dialog
+    UI_Change_Parameter func_para;
+    func_para.widgets_array = (GtkWidget **) malloc(2 * sizeof(GtkWidget *));
+    (func_para.widgets_array)[0] = entry_word;
+    (func_para.widgets_array)[1] = entry_definition;
+    func_para.current_word = word;
+    func_para.array_size = 2;
+    // create a dialog
+    message_change(dialog_content, &func_para, &dialog_change_word_callback, "Change word");
+    // free resources
+    free(func_para.widgets_array);
 }
 
 // search callback

@@ -20,6 +20,7 @@ void get_titles(void * (*func)(void *));
 void get_words(void * (*func)(void *));
 char * get_active_language(void);
 char * get_active_title(void);
+void wrapper_find_word(Wrapper_Word *);
 // debug
 void * print_language(void *);
 void * print_title(void *);

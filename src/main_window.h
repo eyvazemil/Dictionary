@@ -44,6 +44,7 @@ typedef struct ui_window {
 } UI_Window;
 
 typedef struct ui_change_parameter {
+    char * current_word;
     GtkWidget ** widgets_array;
     int array_size, dialog_response;
 } UI_Change_Parameter;

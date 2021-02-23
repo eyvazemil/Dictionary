@@ -55,6 +55,11 @@ char * get_active_title(void) {
     return (title->title_name).str;
 }
 
+void wrapper_find_word(Wrapper_Word * para_word) {
+    Word * found_word = find_word(para_word->word);
+    para_word->definition = (found_word->m_definition).str;
+}
+
 // debug
 void * print_language(void * key) {
     Wrapper_Language_Title * lang = (Wrapper_Language_Title *) key;

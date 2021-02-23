@@ -442,13 +442,13 @@ int change_word(char * word, char * new_title, char * new_word, char * new_def) 
     if(avl_compare_title(title1, title2)) { // title has changed
         m_active_title = new_title_ptr;
         found_word = find_word(new_word);
-        if(found_word) return WORD_EXISTS_ERROR;
+        if(found_word && !strcmp((found_word->m_definition).str, new_def)) return WORD_EXISTS_ERROR;
         m_active_title = current_title;
         delete_word(word); // delete from the AVL tree
         m_active_title = new_title_ptr;
     } else { // the same title
         found_word = find_word(new_word);
-        if(found_word) return WORD_EXISTS_ERROR;
+        if(found_word && !strcmp((found_word->m_definition).str, new_def)) return WORD_EXISTS_ERROR;
         delete_word(word); // delete from the AVL tree
     }
     add_word(new_word, new_def, 0); // insert new word into AVL tree
