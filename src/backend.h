@@ -74,6 +74,7 @@ int add_word(char * word, char * def, int flag_open);
 void delete_word(char * word);
 Word * find_word(char * word);
 int change_word(char * word, char * new_title, char * new_word, char * new_def);
+void change_definition(char * word, char * new_def);
 void * write_word(void *, void *);
 // thread functions
 pthread_t * create_thread(void * (*func)(void *), void *);

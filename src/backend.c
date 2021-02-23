@@ -442,13 +442,13 @@ int change_word(char * word, char * new_title, char * new_word, char * new_def) 
     if(avl_compare_title(title1, title2)) { // title has changed
         m_active_title = new_title_ptr;
         found_word = find_word(new_word);
-        if(found_word && !strcmp((found_word->m_definition).str, new_def)) return WORD_EXISTS_ERROR;
+        if(found_word) return WORD_EXISTS_ERROR;
         m_active_title = current_title;
         delete_word(word); // delete from the AVL tree
         m_active_title = new_title_ptr;
     } else { // the same title
         found_word = find_word(new_word);
-        if(found_word && !strcmp((found_word->m_definition).str, new_def)) return WORD_EXISTS_ERROR;
+        if(found_word) return WORD_EXISTS_ERROR;
         delete_word(word); // delete from the AVL tree
     }
     add_word(new_word, new_def, 0); // insert new word into AVL tree
@@ -457,6 +457,14 @@ int change_word(char * word, char * new_title, char * new_word, char * new_def) 
     avl_free_title((void *) title1);
     avl_free_title((void *) title2);
     return 0;
+}
+
+void change_definition(char * word, char * new_def) {
+    Language * found_language = m_active_language;
+    Title * found_title = m_active_title;
+    Word * found_word = find_word(word);
+    str_free(&(found_word->m_definition));
+    str_append(&(found_word->m_definition), new_def, -1, 0);
 }
 
 Word * find_word(char * word) {

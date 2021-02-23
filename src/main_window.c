@@ -440,6 +440,9 @@ void dialog_change_word_callback(UI_Change_Parameter * para) {
     char * word = para->current_word;
     int dialog_response = para->dialog_response;
     char * active_title = get_active_title();
+    Wrapper_Word para_word;
+    para_word.word = word;
+    wrapper_find_word(&para_word);
     if(dialog_response) { // if "change" button was pressed
         String str_entry_word, str_entry_definition;
         const char * new_word = gtk_entry_get_text((GtkEntry *) entry_word);
@@ -458,18 +461,23 @@ void dialog_change_word_callback(UI_Change_Parameter * para) {
             message_simple(text.str);
             str_free(&text);
         } else { // change word
-            int res = change_word(word, active_title, str_entry_word.str, str_entry_definition.str);
-            if(!res) { // word was changed
-                update_titles_list();
+            if(!strcmp(word, str_entry_word.str) && strcmp(para_word.definition, str_entry_definition.str)) {
+                change_definition(word, str_entry_definition.str);
                 update_words_list();
-            } else { // word exists
-                String text;
-                _str_init_(&text);
-                str_append(&text, "Word \"", -1, 0);
-                str_append(&text, str_entry_word.str, -1, 0);
-                str_append(&text, "\" already exists.", -1, 0);
-                message_simple(text.str);
-                str_free(&text);
+            } else {
+                int res = change_word(word, active_title, str_entry_word.str, str_entry_definition.str);
+                if(!res) { // word was changed
+                    update_titles_list();
+                    update_words_list();
+                } else { // word exists
+                    String text;
+                    _str_init_(&text);
+                    str_append(&text, "Word \"", -1, 0);
+                    str_append(&text, str_entry_word.str, -1, 0);
+                    str_append(&text, "\" already exists.", -1, 0);
+                    message_simple(text.str);
+                    str_free(&text);
+                }
             }
         }
         str_free(&str_entry_word);
