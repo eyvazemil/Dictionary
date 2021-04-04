@@ -4,7 +4,7 @@ DEBUG_OPTS = -fsanitize=address
 OBJECTS = main.o backend.o wrapper.o string.o avl_tree.o main_window.o
 RM = rm -f
 OUT = dictionary
-BASE_DIR = "/home/user/Documents/Programming/GTK_Files/Dictionary"
+BASE_DIR = "/home/emil/Documents/Programming/GTK_Files/Dictionary"
 WINDOW_GRID_WIDTH = 28
 WINDOW_GRID_HEIGHT = 16
 TEXT_SIZE = 11
