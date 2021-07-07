@@ -35,6 +35,6 @@ compile: $(OBJECTS)
 run:
 	./$(OUT) $(BASE_DIR) $(WINDOW_GRID_WIDTH) $(WINDOW_GRID_HEIGHT) $(TEXT_SIZE)
 
-clean: $(OUT)
+clean:
 	$(RM) *.o
-	$(RM) $(OUT)
+	@if [ -e ${OUT} ]; then rm -f ${OUT}; fi
