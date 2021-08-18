@@ -463,8 +463,13 @@ void change_definition(char * word, char * new_def) {
     Language * found_language = m_active_language;
     Title * found_title = m_active_title;
     Word * found_word = find_word(word);
+
+    // free the old definition and append a new one
     str_free(&(found_word->m_definition));
     str_append(&(found_word->m_definition), new_def, -1, 0);
+
+    // set modified flag to 1
+    found_language->flag_modified = 1;
 }
 
 Word * find_word(char * word) {
